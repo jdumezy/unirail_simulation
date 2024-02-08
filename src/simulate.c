@@ -5,33 +5,40 @@
 #include <string.h>
 #include "logic.h"
 
-#define HEIGHT = 1500
-#define WIDTH = 1800
+#define HEIGHT 800
+#define WIDTH 950
+#define MAX_X 17
+#define MAX_Y 14
+#define MARGIN 50
+
+float scale_x(int x) {
+  float xf = (float)x;
+  return MARGIN + ((xf-1)/(MAX_X-1))*(WIDTH - 2 * MARGIN);
+}
+float scale_y(int y) {
+  float yf = (float)y;
+  return MARGIN + ((yf-1)/(MAX_Y-1))*(HEIGHT - 2 * MARGIN);
+}
 
 void draw_tracks(SDL_Renderer *renderer, Color color, Track *track_list, int track_len) {
   SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
-  for (int i = 0; i < track_len; i++) {
-    Track currrent_track = track_list[i];
-    Track next_track = track_list[(i + 1) % track_len];
 
-    int x_current = currrent_track.x;
-    int y_current = currrent_track.y;
-    int x_next = next_track.x;
-    int y_next = next_track.y;
+  for (int i = 0; i < track_len; i++) {
+    Track current_track = track_list[i];
+    Track next_track = track_list[(i + 1) % track_len];
+    
+    float x_current = scale_x(current_track.x);
+    float y_current = scale_y(current_track.y);
+    float x_next = scale_x(next_track.x);
+    float y_next = scale_y(next_track.y);
+    
+    
+    printf("i=%d:%f,%f to %f,%f\n", i, x_current, y_current, x_next, y_next); 
 
     SDL_RenderDrawLine(renderer, x_current, y_current, x_next, y_next);
-    SDL_RenderPresent(renderer);
+    //SDL_RenderPresent(renderer);
   }
 }
-
-
-void processFile(const char *filename) {
-        int x, y;
-    int lineCount = 0;
-        
-    printf("Number of lines: %d\n", lineCount);
-}
-
 
 int line_number(const char *filename) {
   FILE *file = fopen(filename, "r");
@@ -87,7 +94,7 @@ int main(int argc, char* argv[]) {
     SDL_Window* window = SDL_CreateWindow(
         "Unirail Simlulation jdumezy",
         SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-        1920, 1080,
+        WIDTH, HEIGHT,
         SDL_WINDOW_SHOWN
     );
 
@@ -99,11 +106,14 @@ int main(int argc, char* argv[]) {
     
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
     
-    const char *filename = "data/track_1.csv";
+    const char *filename = "/home/jd/Documents/dev/unirail_simulation/data/track_1.csv";
     
     int track_len = line_number(filename);
     Track *track_list = load_track(filename);
-    
+    Color white = { 255, 255, 255};
+    draw_tracks(renderer, white, track_list, track_len);
+
+
     SDL_RenderPresent(renderer);
 
     
