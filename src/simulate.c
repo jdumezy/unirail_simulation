@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <jansson.h>
 #include "logic.h"
 
 #define HEIGHT = 1500
@@ -25,55 +24,58 @@ void draw_tracks(SDL_Renderer *renderer, Color color, Track *track_list, int tra
   }
 }
 
-Track* load_track() {
-    json_error_t error;
-    json_t *root = json_load_file("/home/jd/Documents/dev/unirail_simulation/data/track_1.json", 0, &error);
-    if (root == NULL) {
-        printf("Error opening file: %s\n", error.text);
-        return NULL;
+
+void processFile(const char *filename) {
+        int x, y;
+    int lineCount = 0;
+        
+    printf("Number of lines: %d\n", lineCount);
+}
+
+
+int line_number(const char *filename) {
+  FILE *file = fopen(filename, "r");
+  if (file == NULL) {
+    printf("Error opening file.\n");
+    return -1;
+  }
+    
+  int nb_lines = 0;
+  char buffer[512];
+    
+    while (fgets(buffer, sizeof(buffer), file) != NULL) {
+        nb_lines++;
     }
+    
+  fclose(file);
+  return nb_lines;
+}
 
-    if (!json_is_array(root)) {
-        printf("Root element is not an array\n");
-        json_decref(root);
-        return NULL;
+Track* load_track(const char *filename) {
+  FILE *file = fopen(filename, "r");
+  if (file == NULL) {
+    printf("Error opening file.\n");
+    return NULL;
+  }
+  
+  int x, y;
+  char buffer[512];
+
+  int nb_lines = line_number(filename);
+  Track* track_list = malloc(sizeof(Track) * nb_lines);
+  
+  int i = 0;
+
+  while (fgets(buffer, sizeof(buffer), file) != NULL) {
+    sscanf(buffer, "%d,%d", &x, &y);
+    Track track = { x, y, 0, true };
+    track_list[i] = track;
+    i++;
     }
-
-    int num_points = json_array_size(root);
-    Track* track_list = malloc(sizeof(Track) * num_points);
-    if (track_list == NULL) {
-        printf("Error allocating memory for track list\n");
-        json_decref(root);
-        return NULL;
-    }
-
-    for (int i = 0; i < num_points; i++) {
-        json_t *point_obj = json_array_get(root, i);
-        if (!json_is_object(point_obj)) {
-            printf("Element at index %d is not an object\n", i);
-            free(track_list);
-            json_decref(root);
-            return NULL;
-        }
-
-        json_t *x_val = json_object_get(point_obj, "x");
-        json_t *y_val = json_object_get(point_obj, "y");
-        if (!json_is_integer(x_val) || !json_is_integer(y_val)) {
-            printf("Invalid x or y value for point at index %d\n", i);
-            free(track_list);
-            json_decref(root);
-            return NULL;
-        }
-
-        int x = json_integer_value(x_val);
-        int y = json_integer_value(y_val);
-
-        Track track = { x, y, 0, true };
-        track_list[i] = track;
-    }
-
-    json_decref(root);
-    return track_list;
+    
+  fclose(file);
+  
+  return track_list;
 }
 
 int main(int argc, char* argv[]) {
@@ -83,7 +85,7 @@ int main(int argc, char* argv[]) {
     }
 
     SDL_Window* window = SDL_CreateWindow(
-        "Unirail Simulation jdumezy",
+        "Unirail Simlulation jdumezy",
         SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
         1920, 1080,
         SDL_WINDOW_SHOWN
@@ -96,19 +98,12 @@ int main(int argc, char* argv[]) {
     }
     
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
-
-    // Set the color to white 
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-
-    int x1 = 100;
-    int y1 = 100;
-    int x2 = 300;
-    int y2 = 400;
-
-    // Draw a line from (x1,y1) to (x2,y2)
-    SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
-
-    // Update the renderer
+    
+    const char *filename = "data/track_1.csv";
+    
+    int track_len = line_number(filename);
+    Track *track_list = load_track(filename);
+    
     SDL_RenderPresent(renderer);
 
     
@@ -117,7 +112,9 @@ int main(int argc, char* argv[]) {
 
     SDL_DestroyWindow(window);
     SDL_Quit();
-
+    
+    free(track_list);
+    
     return 0;
 }
 
