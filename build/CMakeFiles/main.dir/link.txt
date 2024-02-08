@@ -1,0 +1,1 @@
+/usr/bin/cc -rdynamic CMakeFiles/main.dir/src/main.c.o -o main  /usr/lib/x86_64-linux-gnu/libSDL2.so liblogic.a 
