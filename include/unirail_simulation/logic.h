@@ -1,4 +1,7 @@
-#include <math.h>
+
+#ifndef LOGIC_H
+#define LOGIC_H
+
 #include <stdbool.h>
 
 typedef struct {
@@ -22,6 +25,8 @@ typedef struct {
   int last_track;
 } Train;
 
-int location(Train train, Track *track_list, int track_len);
-void calculate_next_position(Train *train, float distance, Track *track_list, int track_len);
+Train init_train(int id, Track *track_list, int track_len);
+void calculate_next_position(Train *train, Track *track_list, int track_len);
+
+#endif /* LOGIC_H */
 

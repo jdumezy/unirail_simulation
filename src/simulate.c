@@ -4,115 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "logic.h"
+#include "file.h"
+#include "plot.h"
 
-#define HEIGHT 800.
-#define WIDTH 950.
-#define MAX_X 17.
-#define MAX_Y 14.
-#define MARGIN 50.
-#define TRAIN_SIZE 10.0
-
-float scale_x(int x) {
-    float xf = (float)x;
-    return MARGIN + ((xf - 1.0) / (MAX_X - 1.0)) * (WIDTH - 2 * MARGIN);
-}
-
-float scale_y(int y) {
-    float yf = (float)y;
-    return MARGIN + ((yf - 1.0) / (MAX_Y - 1.0)) * (HEIGHT - 2 * MARGIN);
-}
-
-float scale_xf(float xf) {
-    return MARGIN + ((xf - 1.0) / (MAX_X - 1.0)) * (WIDTH - 2 * MARGIN);
-}
-
-float scale_yf(float yf) {
-    return MARGIN + ((yf - 1.0) / (MAX_Y - 1.0)) * (HEIGHT - 2 * MARGIN);
-}
-
-void draw_tracks(SDL_Renderer *renderer, Color color, Track *track_list, int track_len) {
-  SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
-
-  for (int i = 0; i < track_len; i++) {
-    Track current_track = track_list[i];
-    Track next_track = track_list[(i + 1) % track_len];
-    
-    int x_current = scale_x(current_track.x);
-    int y_current = scale_y(current_track.y);
-    int x_next = scale_x(next_track.x);
-    int y_next = scale_y(next_track.y);
-    
-    SDL_RenderDrawLine(renderer, x_current, y_current, x_next, y_next);
-  }
-}
-
-int line_number(const char *filename) {
-  FILE *file = fopen(filename, "r");
-  if (file == NULL) {
-    printf("Error opening file.\n");
-    return -1;
-  }
-    
-  int nb_lines = 0;
-  char buffer[512];
-    
-    while (fgets(buffer, sizeof(buffer), file) != NULL) {
-        nb_lines++;
-    }
-    
-  fclose(file);
-  return nb_lines;
-}
-
-Track* load_track(const char *filename) {
-  FILE *file = fopen(filename, "r");
-  if (file == NULL) {
-    printf("Error opening file.\n");
-    return NULL;
-  }
-  
-  int x, y;
-  char buffer[512];
-
-  int nb_lines = line_number(filename);
-  Track* track_list = malloc(sizeof(Track) * nb_lines);
-  
-  int i = 0;
-
-  while (fgets(buffer, sizeof(buffer), file) != NULL) {
-    sscanf(buffer, "%d,%d", &x, &y);
-    Track track = { x, y, 0, true };
-    track_list[i] = track;
-    i++;
-    }
-    
-  fclose(file);
-  
-  return track_list;
-}
-
-Train init_train(int id, Track *track_list, int track_len) {
-  int x = track_list[0].x;
-  int y =  track_list[0].y;
-  Train train = { x, y, 0.0, id, 0};
-  return train;
-}
-
-void draw_train(SDL_Renderer *renderer, Color color, Train *train, Track *track_list, int track_len) {
-  SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
-  calculate_next_position(train, .1, track_list, track_len);
-  float x = scale_xf(train->x);
-  float y = scale_yf(train->y);
-
-  SDL_Rect train_rect = {
-    .x = x-TRAIN_SIZE,
-    .y = y-TRAIN_SIZE,
-    .w = 2*TRAIN_SIZE,
-    .h = 2*TRAIN_SIZE
-  };
-  printf("%d;%d\n", train_rect.x, train_rect.y);
-  SDL_RenderFillRect(renderer, &train_rect);
-}
 
 int main(int argc, char* argv[]) {
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -153,12 +47,9 @@ int main(int argc, char* argv[]) {
   Color blue = { 100, 100, 255 };
   Color green = { 100, 255, 100 };
 
-  draw_tracks(renderer, white, track_list_1, track_len_1);
-  draw_tracks(renderer, blue, track_list_2, track_len_2);
-  draw_tracks(renderer, green, track_list_3, track_len_3);
-
   Train train_1 = init_train(0, track_list_1, track_len_1);
-  draw_train(renderer, blue, &train_1, track_list_1, track_len_1);
+  Train train_2 = init_train(1, track_list_2, track_len_2);
+  Train train_3 = init_train(2, track_list_3, track_len_3);
 
   SDL_RenderPresent(renderer);
   
@@ -169,7 +60,9 @@ int main(int argc, char* argv[]) {
     draw_tracks(renderer, white, track_list_1, track_len_1);
     draw_tracks(renderer, blue, track_list_2, track_len_2);
     draw_tracks(renderer, green, track_list_3, track_len_3);
-    draw_train(renderer, blue, &train_1, track_list_1, track_len_1);
+    draw_train(renderer, white, &train_1, track_list_1, track_len_1);
+    draw_train(renderer, blue, &train_2, track_list_2, track_len_2);
+    draw_train(renderer, green, &train_3, track_list_3, track_len_3);
 
     SDL_RenderPresent(renderer);
     SDL_Delay(10);
