@@ -9,4 +9,5 @@ include_directories(${SDL2_INCLUDE_DIRS} include/unirail_simulation)
 add_library(logic src/logic.c)
 add_executable(simulate src/simulate.c)
 
+target_link_libraries(logic m)
 target_link_libraries(simulate PRIVATE logic SDL2::SDL2)

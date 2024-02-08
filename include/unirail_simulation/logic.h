@@ -21,3 +21,7 @@ typedef struct {
   int id;
   int last_track;
 } Train;
+
+int location(Train train, Track *track_list, int track_len);
+void calculate_next_position(Train *train, float distance, Track *track_list, int track_len);
+

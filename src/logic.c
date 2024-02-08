@@ -1,4 +1,5 @@
 #include "logic.h"
+#include <stdio.h>
 
 bool in_track(Track track, Track *track_list, int track_len) {
   for (int i = 0; i < track_len; i++) {
@@ -37,29 +38,48 @@ int location(Train train, Track *track_list, int track_len) {
 
 
 // next position from given speed and time interval
-void calculate_next_position(Train train, float distance, Track *track_list, int track_len) {
-  int track_id = train.last_track; 
-  int i = 1;
-  int d_track = distance_to_track(train, track_list[(track_id + i) % track_len]);
+void calculate_next_position(Train *train, float distance, Track *track_list, int track_len) {
+  int track_id = train->last_track;
 
-  while (d_track < distance) {
-    distance -= d_track;
-    i++;
-    d_track = distance_to_track(train, track_list[(track_id + i) % track_len]);
-  }
+  float x = train->x;
+  float y = train->y;
+
+  // distance jusqu'au prochain point
+  float d_track = distance_to_track((*train), track_list[(track_id + 1) % track_len]);
   
-  Track currrent_track = track_list[(track_id + i - 1) % track_len];
-  Track next_track = track_list[(track_id + i) % track_len];
+  // si on dépasse le prochain point
+  while (d_track < distance) {
+    // distance  parcourir sur la nouvelle section
+    distance -= d_track;
+    track_id = (track_id + 1) % track_len;
+    
+    x = (float)track_list[track_id].x;
+    y = (float)track_list[track_id].y;
 
-  float x_current = (float)currrent_track.x;
-  float y_current = (float)currrent_track.y;
+    // calcul de la nouvelle distance entre le prochain point et celui d'après
+    d_track = distance_tracks(track_list[track_id], track_list[track_id + 1]);
+  }
+
+  // on récupère les deux rails entre lesquels on va se déplacer
+  Track currrent_track = track_list[track_id];
+  Track next_track = track_list[track_id + 1];
+
+
+  // on récupère les coordonées
   float x_next = (float)next_track.x;
   float y_next = (float)next_track.y;
 
-  float t = distance_to_track(train, next_track)/distance_tracks(currrent_track, next_track);
+  float dx = x_next - x;
+  float dy = y_next - y;
+
+  float unit_x = dx / d_track;
+  float unit_y = dy/ d_track;
+  train->x += unit_x * distance;
+  train->y += unit_y * distance;
   
-  train.x = x_current + t * (x_next - x_current);
-  train.y = y_current + t * (y_next - y_current);
+  printf("x: %f y; %f\n", train->x, train->y);
+
+  train->last_track = track_id;
 }
 
 

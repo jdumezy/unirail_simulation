@@ -5,19 +5,29 @@
 #include <string.h>
 #include "logic.h"
 
-#define HEIGHT 800
-#define WIDTH 950
-#define MAX_X 17
-#define MAX_Y 14
-#define MARGIN 50
+#define HEIGHT 800.
+#define WIDTH 950.
+#define MAX_X 17.
+#define MAX_Y 14.
+#define MARGIN 50.
+#define TRAIN_SIZE 10.0
 
 float scale_x(int x) {
-  float xf = (float)x;
-  return MARGIN + ((xf-1)/(MAX_X-1))*(WIDTH - 2 * MARGIN);
+    float xf = (float)x;
+    return MARGIN + ((xf - 1.0) / (MAX_X - 1.0)) * (WIDTH - 2 * MARGIN);
 }
+
 float scale_y(int y) {
-  float yf = (float)y;
-  return MARGIN + ((yf-1)/(MAX_Y-1))*(HEIGHT - 2 * MARGIN);
+    float yf = (float)y;
+    return MARGIN + ((yf - 1.0) / (MAX_Y - 1.0)) * (HEIGHT - 2 * MARGIN);
+}
+
+float scale_xf(float xf) {
+    return MARGIN + ((xf - 1.0) / (MAX_X - 1.0)) * (WIDTH - 2 * MARGIN);
+}
+
+float scale_yf(float yf) {
+    return MARGIN + ((yf - 1.0) / (MAX_Y - 1.0)) * (HEIGHT - 2 * MARGIN);
 }
 
 void draw_tracks(SDL_Renderer *renderer, Color color, Track *track_list, int track_len) {
@@ -27,10 +37,10 @@ void draw_tracks(SDL_Renderer *renderer, Color color, Track *track_list, int tra
     Track current_track = track_list[i];
     Track next_track = track_list[(i + 1) % track_len];
     
-    float x_current = scale_x(current_track.x);
-    float y_current = scale_y(current_track.y);
-    float x_next = scale_x(next_track.x);
-    float y_next = scale_y(next_track.y);
+    int x_current = scale_x(current_track.x);
+    int y_current = scale_y(current_track.y);
+    int x_next = scale_x(next_track.x);
+    int y_next = scale_y(next_track.y);
     
     SDL_RenderDrawLine(renderer, x_current, y_current, x_next, y_next);
   }
@@ -81,6 +91,29 @@ Track* load_track(const char *filename) {
   return track_list;
 }
 
+Train init_train(int id, Track *track_list, int track_len) {
+  int x = track_list[0].x;
+  int y =  track_list[0].y;
+  Train train = { x, y, 0.0, id, 0};
+  return train;
+}
+
+void draw_train(SDL_Renderer *renderer, Color color, Train *train, Track *track_list, int track_len) {
+  SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
+  calculate_next_position(train, .1, track_list, track_len);
+  float x = scale_xf(train->x);
+  float y = scale_yf(train->y);
+
+  SDL_Rect train_rect = {
+    .x = x-TRAIN_SIZE,
+    .y = y-TRAIN_SIZE,
+    .w = 2*TRAIN_SIZE,
+    .h = 2*TRAIN_SIZE
+  };
+  printf("%d;%d\n", train_rect.x, train_rect.y);
+  SDL_RenderFillRect(renderer, &train_rect);
+}
+
 int main(int argc, char* argv[]) {
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
@@ -101,7 +134,9 @@ int main(int argc, char* argv[]) {
     }
     
   SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
-    
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+  SDL_RenderClear(renderer);
+
   const char *filename_1 = "/home/jd/Documents/dev/unirail_simulation/data/track_1.csv";
   const char *filename_2 = "/home/jd/Documents/dev/unirail_simulation/data/track_2.csv"; 
   const char *filename_3 = "/home/jd/Documents/dev/unirail_simulation/data/track_3.csv";
@@ -114,18 +149,35 @@ int main(int argc, char* argv[]) {
   Track *track_list_3 = load_track(filename_3);
 
 
-  Color white = { 255, 255, 255};
-  Color blue = { 100, 100, 255};
-  Color green = { 100, 255, 100};
+  Color white = { 255, 255, 255 };
+  Color blue = { 100, 100, 255 };
+  Color green = { 100, 255, 100 };
 
   draw_tracks(renderer, white, track_list_1, track_len_1);
   draw_tracks(renderer, blue, track_list_2, track_len_2);
   draw_tracks(renderer, green, track_list_3, track_len_3);
 
+  Train train_1 = init_train(0, track_list_1, track_len_1);
+  draw_train(renderer, blue, &train_1, track_list_1, track_len_1);
+
   SDL_RenderPresent(renderer);
+  
+  for (int laps = 0; laps < 1000; laps++) {
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
 
-  SDL_Delay(5000);
+    draw_tracks(renderer, white, track_list_1, track_len_1);
+    draw_tracks(renderer, blue, track_list_2, track_len_2);
+    draw_tracks(renderer, green, track_list_3, track_len_3);
+    draw_train(renderer, blue, &train_1, track_list_1, track_len_1);
 
+    SDL_RenderPresent(renderer);
+    SDL_Delay(10);
+  }
+
+  SDL_Delay(1000);
+  
+  SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
   SDL_Quit();
     
