@@ -1,8 +1,7 @@
 #include "logic.h"
 #include <math.h>
 
-Train init_train(int id, Track *track_list, int track_len) {
-  int start = 0;
+Train init_train(int id, Track *track_list, int track_len, int start) {
   int x = track_list[start].x;
   int y =  track_list[start].y;
   Train train = { x, y, 0.1, id, start };
@@ -58,3 +57,11 @@ void calculate_next_position(Train *train, Track *track_list, int track_len) {
   train->last_track = track_id;
 }
 
+bool detect_collision(Train *train_a, Train *train_b, float radius) {
+  float dx = fabs(train_a->x - train_b->x);
+  float dy = fabs(train_a->y - train_b->y);
+  if ((dx < radius) && (dy < radius)) {
+    return true;
+  }
+  return false;  
+}
