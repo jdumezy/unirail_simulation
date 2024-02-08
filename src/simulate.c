@@ -32,11 +32,7 @@ void draw_tracks(SDL_Renderer *renderer, Color color, Track *track_list, int tra
     float x_next = scale_x(next_track.x);
     float y_next = scale_y(next_track.y);
     
-    
-    printf("i=%d:%f,%f to %f,%f\n", i, x_current, y_current, x_next, y_next); 
-
     SDL_RenderDrawLine(renderer, x_current, y_current, x_next, y_next);
-    //SDL_RenderPresent(renderer);
   }
 }
 
@@ -86,45 +82,57 @@ Track* load_track(const char *filename) {
 }
 
 int main(int argc, char* argv[]) {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
-        return -1;
-    }
+  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
+    return -1;
+  }
 
-    SDL_Window* window = SDL_CreateWindow(
-        "Unirail Simlulation jdumezy",
-        SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-        WIDTH, HEIGHT,
-        SDL_WINDOW_SHOWN
-    );
+  SDL_Window* window = SDL_CreateWindow(
+    "Unirail Simlulation jdumezy",
+    SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+    WIDTH, HEIGHT,
+    SDL_WINDOW_SHOWN
+  );
 
-    if (window == NULL) {
-        printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
+  if (window == NULL) {
+    printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
         SDL_Quit();
         return -1;
     }
     
-    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
+  SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
     
-    const char *filename = "/home/jd/Documents/dev/unirail_simulation/data/track_1.csv";
-    
-    int track_len = line_number(filename);
-    Track *track_list = load_track(filename);
-    Color white = { 255, 255, 255};
-    draw_tracks(renderer, white, track_list, track_len);
+  const char *filename_1 = "/home/jd/Documents/dev/unirail_simulation/data/track_1.csv";
+  const char *filename_2 = "/home/jd/Documents/dev/unirail_simulation/data/track_2.csv"; 
+  const char *filename_3 = "/home/jd/Documents/dev/unirail_simulation/data/track_3.csv";
+
+  int track_len_1 = line_number(filename_1);
+  Track *track_list_1 = load_track(filename_1);
+  int track_len_2 = line_number(filename_2);
+  Track *track_list_2 = load_track(filename_2);
+  int track_len_3 = line_number(filename_3);
+  Track *track_list_3 = load_track(filename_3);
 
 
-    SDL_RenderPresent(renderer);
+  Color white = { 255, 255, 255};
+  Color blue = { 100, 100, 255};
+  Color green = { 100, 255, 100};
 
-    
-    // Wait for 5 seconds before closing the window
-    SDL_Delay(5000);
+  draw_tracks(renderer, white, track_list_1, track_len_1);
+  draw_tracks(renderer, blue, track_list_2, track_len_2);
+  draw_tracks(renderer, green, track_list_3, track_len_3);
 
-    SDL_DestroyWindow(window);
-    SDL_Quit();
+  SDL_RenderPresent(renderer);
+
+  SDL_Delay(5000);
+
+  SDL_DestroyWindow(window);
+  SDL_Quit();
     
-    free(track_list);
+  free(track_list_1);
+  free(track_list_2);
+  free(track_list_3);
     
-    return 0;
+  return 0;
 }
 
