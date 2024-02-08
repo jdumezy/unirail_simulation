@@ -4,8 +4,16 @@
 Train init_train(int id, Track *track_list, int track_len, int start) {
   int x = track_list[start].x;
   int y =  track_list[start].y;
-  Train train = { x, y, 0.1, id, start };
+  Train train = { x, y, 0.0, 0.1, id, start };
   return train;
+}
+
+float next_speed(float speed, float u_speed) {
+    if (fabs(u_speed - speed) > 0.00001) {
+      float delta_v = (TIME_STEP/RESPONSE_TIME) * (u_speed - speed);
+      return speed + delta_v;
+    }
+    return speed;
 }
 
 float distance_tracks(Track track_a, Track track_b) {
@@ -22,15 +30,15 @@ float distance_to_track(Train train, Track track) {
 
 void calculate_next_position(Train *train, Track *track_list, int track_len) {
   int track_id = train->last_track;
-  float distance = train->speed;
+  float speed = train->speed;
 
   float x = train->x;
   float y = train->y;
 
   float d_track = distance_to_track((*train), track_list[(track_id + 1) % track_len]);
   
-  while (d_track < distance) {
-    distance -= d_track;
+  while (d_track < speed) {
+    speed -= d_track;
     track_id = (track_id + 1) % track_len;
     
     x = (float)track_list[track_id].x;
@@ -51,10 +59,11 @@ void calculate_next_position(Train *train, Track *track_list, int track_len) {
 
   float unit_x = dx / d_track;
   float unit_y = dy/ d_track;
-  train->x += unit_x * distance;
-  train->y += unit_y * distance;
+  train->x += unit_x * speed;
+  train->y += unit_y * speed;
   
   train->last_track = track_id;
+  train->speed = next_speed(train->speed, train->u_speed);
 }
 
 bool detect_collision(Train *train_a, Train *train_b, float radius) {

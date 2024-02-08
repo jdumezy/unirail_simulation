@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
 
   SDL_RenderPresent(renderer);
   
-  for (int laps = 0; laps < 10000; laps++) {
+  for (int laps = 0; laps < 1000; laps++) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
@@ -67,22 +67,23 @@ int main(int argc, char* argv[]) {
     draw_train(renderer, green, &train_3, track_list_3, track_len_3);
     
     SDL_RenderPresent(renderer);
+    printf("%f\n", next_speed(train_1.speed, train_1.u_speed));
 
     // Collision detection
     if (detect_collision(&train_1, &train_2, radius)) {
       printf("Collision between train 1 and train 2!\n");
-      break;
+      //break;
     }
     if (detect_collision(&train_3, &train_2, radius)) {
       printf("Collision between train 2 and train 3!\n");
-      break;
+      //break;
     }
     if (detect_collision(&train_1, &train_3, radius)) {
       printf("Collision between train 1 and train 3!\n");
-      break;
+      //break;
     }
 
-    SDL_Delay(10);
+    SDL_Delay(TIME_STEP);
   }
 
   SDL_Delay(5000);
