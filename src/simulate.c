@@ -44,9 +44,16 @@ int main(int argc, char* argv[]) {
   int track_len_3 = line_number(filename_3);
   Track *track_list_3 = load_track(filename_3);
 
+  Track *tracks_list[] = {track_list_1, track_list_2, track_list_3};
+  int tracks_len[] = {track_len_1, track_len_2, track_len_3};
+  int critical_len = 0;
+
+  Track *critical = critical_sections(tracks_list, tracks_len, 3);
+
   Color white = { 255, 255, 255 };
   Color blue = { 100, 100, 255 };
   Color green = { 100, 255, 100 };
+  Color red = { 255, 0, 0};
 
   Train train_1 = init_train(0, track_list_1, track_len_1, 0);
   Train train_2 = init_train(1, track_list_2, track_len_2, 10);
@@ -63,12 +70,12 @@ int main(int argc, char* argv[]) {
     draw_tracks(renderer, white, track_list_1, track_len_1);
     draw_tracks(renderer, blue, track_list_2, track_len_2);
     draw_tracks(renderer, green, track_list_3, track_len_3);
+//    draw_tracks(renderer, red, critical, critical_len);
     draw_train(renderer, white, &train_1, track_list_1, track_len_1);
     draw_train(renderer, blue, &train_2, track_list_2, track_len_2);
     draw_train(renderer, green, &train_3, track_list_3, track_len_3);
     
     SDL_RenderPresent(renderer);
-    printf("%f\n", next_speed(train_1.speed, train_1.u_speed));
 
     // Collision detection
     if (detect_collision(&train_1, &train_2, radius)) {
@@ -96,7 +103,7 @@ int main(int argc, char* argv[]) {
   free(track_list_1);
   free(track_list_2);
   free(track_list_3);
-    
+   
   return 0;
 }
 

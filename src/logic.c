@@ -77,7 +77,7 @@ bool detect_collision(Train *train_a, Train *train_b, float radius) {
   return false;  
 }
 
-Track* detect_critical_section(Track **tracks_list, int *tracks_len, int tracks_nb) {
+Track* critical_sections(Track **tracks_list, int *tracks_len, int tracks_nb) {
   int max_len = 0;
   for (int i = 0; i < tracks_nb; i++) {
     int len = tracks_len[i];
@@ -104,3 +104,12 @@ Track* detect_critical_section(Track **tracks_list, int *tracks_len, int tracks_
 
   return critical_sections;
 }
+
+int nb_next_critical(Track *track_list, int track_len, int track_id) {
+  int counter = 0;
+  while (in_track(track_list, track_len, track_list[(track_id + counter) % track_len])) {
+    counter++;
+  }
+  return counter;
+}
+

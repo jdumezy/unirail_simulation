@@ -32,5 +32,5 @@ typedef struct {
 
 bool in_track(Track *track_list, int track_len, Track track);
 
-
 #endif /* UTILS_H */
+
