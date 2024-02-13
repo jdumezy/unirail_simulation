@@ -1,4 +1,6 @@
+#include "utils.h"
 #include "logic.h"
+#include <stdlib.h>
 #include <math.h>
 
 Train init_train(int id, Track *track_list, int track_len, int start) {
@@ -73,4 +75,32 @@ bool detect_collision(Train *train_a, Train *train_b, float radius) {
     return true;
   }
   return false;  
+}
+
+Track* detect_critical_section(Track **tracks_list, int *tracks_len, int tracks_nb) {
+  int max_len = 0;
+  for (int i = 0; i < tracks_nb; i++) {
+    int len = tracks_len[i];
+    if (len > max_len) max_len = len;
+  }
+
+  Track *critical_sections = malloc(sizeof(Track) * max_len);
+  int counter = 0;
+  
+  for (int i = 0; i < tracks_nb - 1; i++) {
+    for (int j = 0; j < tracks_len[i]; j++) {
+      Track track = tracks_list[i][j];
+      
+      for (int k = 0; k < tracks_nb - i - 1; k++) {
+        if (in_track(tracks_list[k], tracks_len[k], track)) {
+          if (!(in_track(critical_sections, counter, track))) {
+            Track common_track = { track.x, track.y, track.section, track.available };
+            counter++;
+          }
+        }
+      }
+    }
+  }
+
+  return critical_sections;
 }

@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "utils.h"
 #include "logic.h"
 #include "file.h"
 #include "plot.h"

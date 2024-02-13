@@ -3,7 +3,7 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_render.h>
-#include "logic.h"
+#include "utils.h"
 
 #define HEIGHT 800.
 #define WIDTH 950.

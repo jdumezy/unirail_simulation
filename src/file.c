@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "logic.h"
+#include "utils.h"
 
 int line_number(const char *filename) {
   FILE *file = fopen(filename, "r");
