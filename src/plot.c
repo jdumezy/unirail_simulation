@@ -29,12 +29,14 @@ void draw_tracks(SDL_Renderer *renderer, Color color, Track *track_list, int tra
     Track current_track = track_list[i];
     Track next_track = track_list[(i + 1) % track_len];
     
-    int x_current = scale_x(current_track.x);
-    int y_current = scale_y(current_track.y);
-    int x_next = scale_x(next_track.x);
-    int y_next = scale_y(next_track.y);
-    
-    SDL_RenderDrawLine(renderer, x_current, y_current, x_next, y_next);
+    if (is_close(current_track, next_track)) {
+      int x_current = scale_x(current_track.x);
+      int y_current = scale_y(current_track.y);
+      int x_next = scale_x(next_track.x);
+      int y_next = scale_y(next_track.y);
+      
+      SDL_RenderDrawLine(renderer, x_current, y_current, x_next, y_next);
+    }
   }
 }
 

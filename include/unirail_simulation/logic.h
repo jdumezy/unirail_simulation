@@ -8,7 +8,8 @@ Train init_train(int id, Track *track_list, int track_len, int start);
 float next_speed(float current_speed, float input_speed);
 void calculate_next_position(Train *train, Track *track_list, int track_len);
 bool detect_collision(Train *train_a, Train *train_b, float radius);
-Track* critical_sections(Track **tracks_list, int *tracks_len, int tracks_nb);
+bool is_close(Track track_a, Track track_b);
+Track* critical_sections(Track **tracks_list, int *tracks_len, int tracks_nb, int *size_out);
 int nb_next_critical(Track *track_list, int track_len, int track_id);
 
 #endif /* LOGIC_H */

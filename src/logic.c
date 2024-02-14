@@ -77,32 +77,55 @@ bool detect_collision(Train *train_a, Train *train_b, float radius) {
   return false;  
 }
 
-Track* critical_sections(Track **tracks_list, int *tracks_len, int tracks_nb) {
+bool is_close(Track track_a, Track track_b) {
+  if ((abs(track_a.x - track_b.x) < 2) && (abs(track_a.y - track_b.y) < 2)) {
+    return true;
+  }
+  return false;
+}
+
+Track* critical_sections(Track **tracks_list, int *tracks_len, int tracks_nb, int *size_out) {
   int max_len = 0;
   for (int i = 0; i < tracks_nb; i++) {
     int len = tracks_len[i];
     if (len > max_len) max_len = len;
   }
 
-  Track *critical_sections = malloc(sizeof(Track) * max_len);
+  Track *critical = malloc(sizeof(Track) * max_len);
+  if (!critical) {
+    *size_out = -1;
+    return NULL;
+  }
   int counter = 0;
   
   for (int i = 0; i < tracks_nb - 1; i++) {
     for (int j = 0; j < tracks_len[i]; j++) {
       Track track = tracks_list[i][j];
       
-      for (int k = 0; k < tracks_nb - i - 1; k++) {
+      for (int k = i + 1; k < tracks_nb; k++) {
         if (in_track(tracks_list[k], tracks_len[k], track)) {
-          if (!(in_track(critical_sections, counter, track))) {
+          if (!(in_track(critical, counter, track))) {
             Track common_track = { track.x, track.y, track.section, track.available };
-            counter++;
+            critical[counter++] = common_track;
           }
         }
       }
     }
   }
 
-  return critical_sections;
+  Track *shrinked_critical = malloc(sizeof(Track) * counter);
+  if (!shrinked_critical) {
+    *size_out = -1;
+    return NULL;
+  }
+  for (int i = 0; i < counter; i++) {
+    shrinked_critical[i] = critical[i];
+  }
+
+  free(critical);
+
+  *size_out = counter;
+  return shrinked_critical;
 }
 
 int nb_next_critical(Track *track_list, int track_len, int track_id) {

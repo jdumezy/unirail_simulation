@@ -46,10 +46,11 @@ int main(int argc, char* argv[]) {
 
   Track *tracks_list[] = {track_list_1, track_list_2, track_list_3};
   int tracks_len[] = {track_len_1, track_len_2, track_len_3};
+
   int critical_len = 0;
-
-  Track *critical = critical_sections(tracks_list, tracks_len, 3);
-
+  Track *critical = critical_sections(tracks_list, tracks_len, 3, &critical_len);
+  printf("%d\n", critical_len);
+ 
   Color white = { 255, 255, 255 };
   Color blue = { 100, 100, 255 };
   Color green = { 100, 255, 100 };
@@ -70,7 +71,7 @@ int main(int argc, char* argv[]) {
     draw_tracks(renderer, white, track_list_1, track_len_1);
     draw_tracks(renderer, blue, track_list_2, track_len_2);
     draw_tracks(renderer, green, track_list_3, track_len_3);
-//    draw_tracks(renderer, red, critical, critical_len);
+    draw_tracks(renderer, red, critical, critical_len);
     draw_train(renderer, white, &train_1, track_list_1, track_len_1);
     draw_train(renderer, blue, &train_2, track_list_2, track_len_2);
     draw_train(renderer, green, &train_3, track_list_3, track_len_3);
