@@ -11,6 +11,8 @@ bool detect_collision(Train *train_a, Train *train_b, float radius);
 bool is_close(Track track_a, Track track_b);
 Track* critical_sections(Track **tracks_list, int *tracks_len, int tracks_nb, int *size_out);
 int nb_next_critical(Track *track_list, int track_len, int track_id);
+bool train_on_track(Track **tracks_list, Train **trains, int trains_nb, Track track);
+float new_speed(Track **tracks_list, int *tracks_len, Train **trains, int trains_nb, int train_id, Track *critical, int critical_len);
 
 #endif /* LOGIC_H */
 

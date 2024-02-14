@@ -2,11 +2,12 @@
 #include "logic.h"
 #include <stdlib.h>
 #include <math.h>
+#include <stdio.h>
 
-Train init_train(int id, Track *track_list, int track_len, int start) {
+Train init_train(int id, Track *track_list, int track_list_id, int start) {
   int x = track_list[start].x;
   int y =  track_list[start].y;
-  Train train = { x, y, 0.0, 0.1, id, start };
+  Train train = { x, y, 0.0, MAX_SPEED, id, track_list_id, start };
   return train;
 }
 
@@ -135,4 +136,53 @@ int nb_next_critical(Track *track_list, int track_len, int track_id) {
   }
   return counter;
 }
+
+bool train_on_track(Track **tracks_list, Train **trains, int trains_nb, Track track) {
+  int x = track.x;
+  int y = track.y;
+
+  for (int i = 0; i < trains_nb; i++) {
+    Train current_train = *trains[i];
+    Track current_track = tracks_list[i][current_train.last_track];
+    if ((current_track.x == x) && (current_track.y == y)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+float new_speed(Track **tracks_list, int *tracks_len, Train **trains, int trains_nb, int train_id, Track *critical, int critical_len) {
+  Train *train = trains[train_id];
+  int track_list_id = train->track_list;
+  Track *track_list = tracks_list[track_list_id];
+
+  int ntrack_id = (trains[train_id]->last_track + 1) % tracks_len[track_list_id];
+  Track next_track = tracks_list[track_list_id][ntrack_id];
+
+  if (in_track(critical, critical_len, tracks_list[track_list_id][ntrack_id])) {
+    if (train_on_track(tracks_list, trains, trains_nb, next_track)) {
+      printf("Train ahead of train %d, slowing down\n", train_id);
+      float d = distance_to_track(*train, track_list[ntrack_id]);
+      float d_max = distance_tracks(track_list[train->last_track], track_list[ntrack_id]);
+      return MAX_SPEED * d / (2 * d_max);
+    }
+  }
+  return MAX_SPEED;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

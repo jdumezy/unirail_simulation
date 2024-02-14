@@ -49,29 +49,34 @@ int main(int argc, char* argv[]) {
 
   int critical_len = 0;
   Track *critical = critical_sections(tracks_list, tracks_len, 3, &critical_len);
-  printf("%d\n", critical_len);
  
   Color white = { 255, 255, 255 };
   Color blue = { 100, 100, 255 };
   Color green = { 100, 255, 100 };
   Color red = { 255, 0, 0};
 
-  Train train_1 = init_train(0, track_list_1, track_len_1, 0);
-  Train train_2 = init_train(1, track_list_2, track_len_2, 10);
-  Train train_3 = init_train(2, track_list_3, track_len_3, 4);
+  Train train_1 = init_train(0, track_list_1, 0, 0);
+  Train train_2 = init_train(1, track_list_2, 1, 10);
+  Train train_3 = init_train(2, track_list_3, 2, 4);
+  
+  Train *trains[] = {&train_1, &train_2, &train_3};
 
   float radius = 0.4;
 
   SDL_RenderPresent(renderer);
   
-  for (int laps = 0; laps < 1000; laps++) {
+  for (int laps = 0; laps < 5000; laps++) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
+    
+    train_1.u_speed = new_speed(tracks_list, tracks_len, trains, 3, 0, critical, critical_len);
+    train_2.u_speed = new_speed(tracks_list, tracks_len, trains, 3, 1, critical, critical_len);
+    train_3.u_speed = new_speed(tracks_list, tracks_len, trains, 3, 2, critical, critical_len);
 
     draw_tracks(renderer, white, track_list_1, track_len_1);
     draw_tracks(renderer, blue, track_list_2, track_len_2);
     draw_tracks(renderer, green, track_list_3, track_len_3);
-    draw_tracks(renderer, red, critical, critical_len);
+    // draw_tracks(renderer, red, critical, critical_len);
     draw_train(renderer, white, &train_1, track_list_1, track_len_1);
     draw_train(renderer, blue, &train_2, track_list_2, track_len_2);
     draw_train(renderer, green, &train_3, track_list_3, track_len_3);

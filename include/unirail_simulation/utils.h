@@ -6,7 +6,7 @@
 // In ms
 #define RESPONSE_TIME 200.0
 #define TIME_STEP 10.0
-#define MAX_SPEED 0.5
+#define MAX_SPEED 0.1
 
 typedef struct {
   int r;
@@ -27,10 +27,12 @@ typedef struct {
   float speed;
   float u_speed;
   int id;
+  int track_list;
   int last_track;
 } Train;
 
 bool in_track(Track *track_list, int track_len, Track track);
+int track_index(Track *track_list, int track_len, Track track);
 
 #endif /* UTILS_H */
 
