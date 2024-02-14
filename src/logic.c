@@ -31,6 +31,28 @@ float distance_to_track(Train train, Track track) {
   return sqrtf(dx * dx + dy * dy);
 }
 
+float distance_trains(Train train_a, Train train_b, Track *track_list_a, int track_len_a, Track track_b) {
+  int current_track_id = train_a.last_track;
+  float distance = 0.0;
+
+  for (int i = 0; i < track_len_a; i++) {
+    current_track_id = (current_track_id + i) % track_len_a;
+    Track current_track = track_list_a[current_track_id];
+    Track next_track = track_list_a[(current_track_id + 1) % track_len_a];
+
+    if (same_track(current_track, track_b)) {
+      float dx = (float)(train_a.x - train_b.x);
+      float dy = (float)(train_a.y - train_b.y);
+      return distance + sqrtf(dx * dx + dy * dy);
+    } else if (i == 0) {
+      distance = distance_to_track(train_a, next_track);
+    } else {
+      distance += distance_tracks(current_track, next_track);
+    }
+  }
+  return -1.0;
+}
+
 void calculate_next_position(Train *train, Track *track_list, int track_len) {
   int track_id = train->last_track;
   float speed = train->speed;
@@ -137,35 +159,40 @@ int nb_next_critical(Track *track_list, int track_len, int track_id) {
   return counter;
 }
 
-bool train_on_track(Track **tracks_list, Train **trains, int trains_nb, Track track) {
-  int x = track.x;
-  int y = track.y;
-
+int train_on_track(Track **tracks_list, Train **trains, int trains_nb, Track track) {
   for (int i = 0; i < trains_nb; i++) {
     Train current_train = *trains[i];
     Track current_track = tracks_list[i][current_train.last_track];
-    if ((current_track.x == x) && (current_track.y == y)) {
-      return true;
+    if (same_track(track, current_track)) {
+      return i;
     }
   }
-  return false;
+  return -1;
 }
 
 float new_speed(Track **tracks_list, int *tracks_len, Train **trains, int trains_nb, int train_id, Track *critical, int critical_len) {
   Train *train = trains[train_id];
   int track_list_id = train->track_list;
   Track *track_list = tracks_list[track_list_id];
+  int track_len = tracks_len[track_list_id];
 
   int ntrack_id = (trains[train_id]->last_track + 1) % tracks_len[track_list_id];
   Track next_track = tracks_list[track_list_id][ntrack_id];
 
   //if (in_track(critical, critical_len, tracks_list[track_list_id][ntrack_id])) {
-    if (train_on_track(tracks_list, trains, trains_nb, next_track)) {
-      printf("Train ahead of train %d, slowing down\n", train_id);
-      float d = distance_to_track(*train, track_list[ntrack_id]);
-      float d_max = distance_tracks(track_list[train->last_track], track_list[ntrack_id]);
-      return MAX_SPEED * fmax(0.0, (d / (4 * d_max) - 0.2));
+  int t = train_on_track(tracks_list, trains, trains_nb, next_track);
+  if (t != -1) {
+    printf("\tTrain ahead of train %d, slowing down\n", train_id);
+    Track track_b = tracks_list[trains[t]->track_list][trains[t]->last_track];
+    float d = distance_trains(*train, *trains[t], track_list, track_len, track_b);
+
+    if (d < 0) {
+      d = distance_to_track(*train, next_track);
     }
+
+    float d_max = distance_tracks(track_list[train->last_track], track_list[ntrack_id]);
+    return MAX_SPEED * fmax(0.0, (d / (4 * d_max) - 0.2));
+  }
   //}
   return MAX_SPEED;
 }
