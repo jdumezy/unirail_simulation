@@ -5,8 +5,8 @@
 
 // In ms
 #define RESPONSE_TIME 200.0
-#define TIME_STEP 10.0
-#define MAX_SPEED 0.1
+#define TIME_STEP 1.0
+#define MAX_SPEED 0.01
 
 typedef struct {
   int r;

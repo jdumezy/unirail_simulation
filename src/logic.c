@@ -159,30 +159,17 @@ float new_speed(Track **tracks_list, int *tracks_len, Train **trains, int trains
   int ntrack_id = (trains[train_id]->last_track + 1) % tracks_len[track_list_id];
   Track next_track = tracks_list[track_list_id][ntrack_id];
 
-  if (in_track(critical, critical_len, tracks_list[track_list_id][ntrack_id])) {
+  //if (in_track(critical, critical_len, tracks_list[track_list_id][ntrack_id])) {
     if (train_on_track(tracks_list, trains, trains_nb, next_track)) {
       printf("Train ahead of train %d, slowing down\n", train_id);
       float d = distance_to_track(*train, track_list[ntrack_id]);
       float d_max = distance_tracks(track_list[train->last_track], track_list[ntrack_id]);
-      return MAX_SPEED * d / (2 * d_max);
+      return MAX_SPEED * fmax(0.0, (d / (4 * d_max) - 0.2));
     }
-  }
+  //}
   return MAX_SPEED;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// deceleration in function of distance with next train
+// add avoidance for double section
 

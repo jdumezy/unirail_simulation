@@ -11,6 +11,11 @@
 
 
 int main(int argc, char* argv[]) {
+  int duration = 10;
+  if (argc > 0) {
+    duration = atoi(argv[1]);
+  }
+
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
     return -1;
@@ -65,7 +70,9 @@ int main(int argc, char* argv[]) {
 
   SDL_RenderPresent(renderer);
   
-  for (int laps = 0; laps < 5000; laps++) {
+  int steps = duration * TIME_STEP * 1000;
+
+  for (int laps = 0; laps < steps; laps++) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
     
