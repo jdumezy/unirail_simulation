@@ -13,7 +13,7 @@
 
 int main(int argc, char* argv[]) {
   int duration = 10;
-  if (argc > 0) {
+  if (argc > 1) {
     duration = atoi(argv[1]);
   }
 
@@ -39,6 +39,8 @@ int main(int argc, char* argv[]) {
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   SDL_RenderClear(renderer);
 
+  SDL_Event event;
+
   const char *filename_1 = "/home/jd/Documents/dev/unirail_simulation/data/track_1.csv";
   const char *filename_2 = "/home/jd/Documents/dev/unirail_simulation/data/track_2.csv"; 
   const char *filename_3 = "/home/jd/Documents/dev/unirail_simulation/data/track_3.csv";
@@ -59,7 +61,9 @@ int main(int argc, char* argv[]) {
   int shared_len_temp = 0;
   Track *shared_temp = critical_sections(tracks_list, tracks_len, 3, &shared_len_temp);
   int shared_len = 0;
-  Track *shared = diff_track(shared_temp, shared_len_temp, critical, critical_len, &shared_len);
+  Track *shared = diff_track(shared_temp, shared_len_temp, critical,
+                             critical_len, &shared_len);
+  free(shared_temp);
 
   Color white = { 255, 255, 255 };
   Color blue = { 100, 100, 255 };
@@ -78,14 +82,16 @@ int main(int argc, char* argv[]) {
   SDL_RenderPresent(renderer);
   
   int steps = duration * TIME_STEP * 1000;
+  int isRunning = 1;
+  int laps = 0;
 
-  for (int laps = 0; laps < steps; laps++) {
+  while (isRunning && laps < steps){
     // Logique
-    train_1.u_speed = new_speed_v2(tracks_list, tracks_len, trains, 3, 0,
+    train_1.u_speed = new_speed(tracks_list, tracks_len, trains, 3, 0,
                                    critical, critical_len, shared, shared_len);
-    train_2.u_speed = new_speed_v2(tracks_list, tracks_len, trains, 3, 1,
+    train_2.u_speed = new_speed(tracks_list, tracks_len, trains, 3, 1,
                                    critical, critical_len, shared, shared_len);
-    train_3.u_speed = new_speed_v2(tracks_list, tracks_len, trains, 3, 2,
+    train_3.u_speed = new_speed(tracks_list, tracks_len, trains, 3, 2,
                                    critical, critical_len, shared, shared_len);
 
     calculate_next_position(&train_1, track_list_1, track_len_1);
@@ -123,7 +129,22 @@ int main(int argc, char* argv[]) {
     
     SDL_RenderPresent(renderer);
 
+    // Check event
+    while (SDL_PollEvent(&event)) {
+      switch (event.type) {
+        case SDL_QUIT:
+          isRunning = 0;
+          break;
+      }
+    }
+
     SDL_Delay(TIME_STEP);
+
+    laps++;
+  }
+  
+  if (isRunning == 0) {
+    return 0;
   }
 
   SDL_Delay(5000);
@@ -136,6 +157,7 @@ int main(int argc, char* argv[]) {
   free(track_list_2);
   free(track_list_3);
   free(critical);
+  free(shared);
    
   return 0;
 }

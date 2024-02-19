@@ -56,14 +56,19 @@ void draw_train(SDL_Renderer *renderer, Color color, Train *train, Track *track_
 void draw_critical(SDL_Renderer *renderer, Color color, Track *critical, int critical_len) {
   SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
   for (int i = 0; i < critical_len; i++) {
+    if (critical[i].available) {
+      SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
+    } else {
+      SDL_SetRenderDrawColor(renderer, color.r/3, color.g/3, color.b/3, 255);
+    }
     float x = scale_xf(critical[i].x);
     float y = scale_yf(critical[i].y);
 
     SDL_Rect rect = {
-      .x = x-(TRAIN_SIZE)/1.5,
-      .y = y-(TRAIN_SIZE)/1.5,
-      .w = 2*(TRAIN_SIZE)/1.5,
-      .h = 2*(TRAIN_SIZE)/1.5
+      .x = x-(TRAIN_SIZE)/2,
+      .y = y-(TRAIN_SIZE)/2,
+      .w = 2*(TRAIN_SIZE)/2,
+      .h = 2*(TRAIN_SIZE)/2
     };
 
     SDL_RenderFillRect(renderer, &rect);
@@ -71,8 +76,12 @@ void draw_critical(SDL_Renderer *renderer, Color color, Track *critical, int cri
 }
 
 void draw_shared(SDL_Renderer *renderer, Color color, Track *shared, int shared_len) {
-  SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
   for (int i = 0; i < shared_len; i++) {
+    if (shared[i].available) {
+      SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
+    } else {
+      SDL_SetRenderDrawColor(renderer, color.r/3, color.g/3, color.b/3, 255);
+    }
     float x = scale_xf(shared[i].x);
     float y = scale_yf(shared[i].y);
 

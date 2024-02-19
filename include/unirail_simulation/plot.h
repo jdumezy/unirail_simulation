@@ -5,6 +5,7 @@
 #include <SDL2/SDL_render.h>
 #include "utils.h"
 
+// recommended 800 x 950
 #define HEIGHT 800.
 #define WIDTH 950.
 #define MAX_X 17.

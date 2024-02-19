@@ -258,7 +258,7 @@ int nearest_track(Track *track_list, int track_len, float x, float y) {
 }
 
 // Commande séquentielle des trains
-float new_speed_v2(Track **tracks_list, int *tracks_len, Train **trains, int trains_nb,
+float new_speed(Track **tracks_list, int *tracks_len, Train **trains, int trains_nb,
                 int train_id, Track *critical, int critical_len, Track *shared, int shared_len) {
   Train* train = trains[train_id];
   Track* track_list = tracks_list[train->track_list];
@@ -284,9 +284,32 @@ float new_speed_v2(Track **tracks_list, int *tracks_len, Train **trains, int tra
   if ((next_track.x != nnext_track.x) && (next_track.y != nnext_track.y)) {
     u_max = MAX_SPEED_TURN;
   }
-  
-  // Initialisation de la consigne de vitesse
-  float u_speed = 0.0;
+
+  // Si l'on sort d'une section critique, on libère
+  if (!(in_track(critical, critical_len, track_list[last_track]))) {
+    for (int i = idx(last_track - 1, track_len);
+         in_track(critical, critical_len, track_list[idx(i, track_len)]);
+         i--) {
+      int crit_index = track_index(critical, critical_len, track_list[idx(i, track_len)]);
+      if (critical[crit_index].r_id == train_id) {
+        critical[crit_index].available = true;
+        critical[crit_index].r_id = -1;
+        DEBUG_PRINT("R-Train %d unlocking critical section %d %d\n", train_id, critical[crit_index].x, critical[crit_index].y);
+      }
+    }
+  }
+
+  // Si l'on sort d'une section partagée, on libère
+  if (in_track(shared, shared_len, track_list[idx(last_track - 1, track_len)])) {
+    int shrd_index = track_index(shared, shared_len,
+                                 track_list[idx(last_track - 1, track_len)]);
+    if (shared[shrd_index].r_id == train_id) {
+      shared[shrd_index].available = true;
+      shared[shrd_index].r_id = -1;
+      DEBUG_PRINT("Train %d unlocking shared section %d %d\n",
+                  train_id, shared[shrd_index].x, shared[shrd_index].y);
+    }
+  }
 
   // Si l'on va rentrer dans une section critique
   if (in_track(critical, critical_len, next_track)) {
@@ -296,18 +319,17 @@ float new_speed_v2(Track **tracks_list, int *tracks_len, Train **trains, int tra
     if (critical[crit_index].available) {
       critical[crit_index].available = false;
       critical[crit_index].r_id = train_id;
-      //DEBUG_PRINT("Train %d locking critical section %d %d\n", train_id, critical[crit_index].x, critical[crit_index].y);
+      DEBUG_PRINT("Train %d locking critical section %d %d\n", train_id, critical[crit_index].x, critical[crit_index].y);
       for (int i = nt_id + 1; in_track(critical, critical_len, track_list[i % track_len]); i++) {
         int crit_index = track_index(critical, critical_len, track_list[i % track_len]);
         if (critical[crit_index].available) {
           critical[crit_index].available = false;
           critical[crit_index].r_id = train_id;
-          //DEBUG_PRINT("R-Train %d locking critical section %d %d\n", train_id, critical[crit_index].x, critical[crit_index].y);
+          DEBUG_PRINT("R-Train %d locking critical section %d %d\n", train_id, critical[crit_index].x, critical[crit_index].y);
         } else {
           DEBUG_PRINT("\tLock: This shouldn't happen...\n");
         }
       }
-      //u_speed = u_max;
       return u_max;
     }
     // Si le train a réservé la section
@@ -316,21 +338,19 @@ float new_speed_v2(Track **tracks_list, int *tracks_len, Train **trains, int tra
     }
     // Sinon on doit laisser passer
     else {
-      //u_speed = 0.0;
       return 0.0;
     }
   }
 
   // Si l'on va emprunter une section partagée
-  if (in_track(shared, shared_len, next_track)) {
-    int shrd_index = track_index(shared, shared_len, next_track);
+  if (in_track(shared, shared_len, nnext_track)) {
+    int shrd_index = track_index(shared, shared_len, nnext_track);
 
     // Réservation de la prochaine section partagée
     if (shared[shrd_index].available) {
       shared[shrd_index].available = false;
       shared[shrd_index].r_id = train_id;
       DEBUG_PRINT("Train %d locking shared section %d %d\n", train_id, shared[shrd_index].x, shared[shrd_index].y);
-      //u_speed = u_max;
       return u_max;
     }
     // Si le train a réservé la section
@@ -339,11 +359,9 @@ float new_speed_v2(Track **tracks_list, int *tracks_len, Train **trains, int tra
     }
     // Sinon on doit laisser passer
     else {
-      //u_speed = 0.0;
       return 0.0;
     }
   }
-
   
   // Gestion de la distance inter trains
   for (int i = last_track; i < trains_nb; i++) {
@@ -362,29 +380,6 @@ float new_speed_v2(Track **tracks_list, int *tracks_len, Train **trains, int tra
     }
   }
 
-  // Si l'on sort d'une section critique, on libère
-  if (!(in_track(critical, critical_len, track_list[last_track]))) {
-    for (int i = last_track - 1; in_track(critical, critical_len, track_list[i % track_len]); i--) {
-      int crit_index = track_index(critical, critical_len, track_list[i % track_len]);
-      if (critical[crit_index].r_id == train_id) {
-        critical[crit_index].available = true;
-        critical[crit_index].r_id = -1;
-        //DEBUG_PRINT("R-Train %d unlocking critical section %d %d\n", train_id, critical[crit_index].x, critical[crit_index].y);
-      }
-    }
-  }
-
-  // Si l'on sort d'une section partagée, on libère
-  if (in_track(shared, shared_len, track_list[(last_track - 1) % track_len])) {
-    int shrd_index = track_index(shared, shared_len,
-                                 track_list[(last_track - 1) % track_len]);
-    if (shared[shrd_index].r_id == train_id) {
-      shared[shrd_index].available = true;
-      shared[shrd_index].r_id = -1;
-      DEBUG_PRINT("Train %d unlocking shared section %d %d\n",
-                  train_id, shared[shrd_index].x, shared[shrd_index].y);
-    }
-  }
   return u_max;
 }
 

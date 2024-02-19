@@ -56,3 +56,7 @@ Track* diff_track(Track *track_list_a, int track_len_a,
   *diff_size = counter;
   return shrinked_diff;
 }
+
+int idx(int index, int max) {
+  return (index + max) % max;
+}

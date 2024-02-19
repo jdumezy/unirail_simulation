@@ -46,6 +46,7 @@ bool same_track(Track track_a, Track track_b);
 Track* diff_track(Track *track_list_a, int track_len_a,
                   Track *track_list_b, int track_len_b,
                   int *diff_size);
+int idx(int index, int max);
 
 #endif /* UTILS_H */
 
