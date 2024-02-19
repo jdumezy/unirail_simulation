@@ -1,8 +1,11 @@
-
 cmake_minimum_required(VERSION 3.0.0)
 project(unirail_simulation VERSION 0.1.0)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_definitions(DEBUG)
+endif()
 
 find_package(SDL2 REQUIRED)
 
@@ -24,3 +27,4 @@ target_link_libraries(
   plot
   utils
   SDL2::SDL2)
+

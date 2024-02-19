@@ -6,8 +6,15 @@
 // In ms
 #define RESPONSE_TIME 200.0
 #define TIME_STEP 1.0
-#define MAX_SPEED 0.01
-#define MAX_SPEED_TURN 0.008
+#define MAX_SPEED 0.008
+#define MAX_SPEED_TURN 0.005
+
+
+#ifdef DEBUG
+#define DEBUG_PRINT(fmt, ...) printf(fmt, ##__VA_ARGS__)
+#else
+#define DEBUG_PRINT(fmt, ...) ((void)0)
+#endif
 
 typedef struct {
   int r;

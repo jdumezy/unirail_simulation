@@ -14,6 +14,7 @@
 
 void draw_tracks(SDL_Renderer *renderer, Color color, Track *track_list, int track_len);
 void draw_train(SDL_Renderer *renderer, Color color, Train *train, Track *track_list, int track_len);
+void draw_critical(SDL_Renderer *renderer, Color color, Track *critical, int critical_len);
 
 #endif /* PLOT_H */
 

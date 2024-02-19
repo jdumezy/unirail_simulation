@@ -54,8 +54,9 @@ int main(int argc, char* argv[]) {
   int tracks_len[] = {track_len_1, track_len_2, track_len_3};
 
   int critical_len = 0;
-  Track *critical = critical_sections(tracks_list, tracks_len, 3, &critical_len);
- 
+  //Track *critical = critical_sections(tracks_list, tracks_len, 3, &critical_len);
+  Track *critical = critical_sections_man(&critical_len);
+
   Color white = { 255, 255, 255 };
   Color blue = { 100, 100, 255 };
   Color green = { 100, 255, 100 };
@@ -75,9 +76,9 @@ int main(int argc, char* argv[]) {
 
   for (int laps = 0; laps < steps; laps++) {
     // Logique
-    train_1.u_speed = new_speed(tracks_list, tracks_len, trains, 3, 0, critical, critical_len);
-    train_2.u_speed = new_speed(tracks_list, tracks_len, trains, 3, 1, critical, critical_len);
-    train_3.u_speed = new_speed(tracks_list, tracks_len, trains, 3, 2, critical, critical_len);
+    train_1.u_speed = new_speed_v2(tracks_list, tracks_len, trains, 3, 0, critical, critical_len);
+    train_2.u_speed = new_speed_v2(tracks_list, tracks_len, trains, 3, 1, critical, critical_len);
+    train_3.u_speed = new_speed_v2(tracks_list, tracks_len, trains, 3, 2, critical, critical_len);
 
     calculate_next_position(&train_1, track_list_1, track_len_1);
     calculate_next_position(&train_2, track_list_2, track_len_2);
@@ -104,6 +105,8 @@ int main(int argc, char* argv[]) {
     draw_tracks(renderer, white, track_list_1, track_len_1);
     draw_tracks(renderer, blue, track_list_2, track_len_2);
     draw_tracks(renderer, green, track_list_3, track_len_3);
+
+    draw_critical(renderer, red, critical, critical_len);
 
     draw_train(renderer, white, &train_1, track_list_1, track_len_1);
     draw_train(renderer, blue, &train_2, track_list_2, track_len_2);

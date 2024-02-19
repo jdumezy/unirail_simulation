@@ -15,11 +15,25 @@ Train init_train(int id, Track *track_list, int track_list_id, int start) {
 
 // Réponse des trains à une consigne de vitesse
 float next_speed(float speed, float u_speed) {
-    if (fabs(u_speed - speed) > 0.00001) {
-      float delta_v = (TIME_STEP/RESPONSE_TIME) * (u_speed - speed);
-      return speed + delta_v;
-    }
-    return speed;
+  if (fabs(u_speed - speed) > 0.0001) {
+    float delta_v = (TIME_STEP/RESPONSE_TIME) * (u_speed - speed);
+    return speed + delta_v;
+  }
+  else if (fabs(u_speed) < 0.0001) {
+    return 0.0;
+  } 
+  return speed;
+}
+
+float stopping_distance(float initial_speed) {
+  float speed = initial_speed;
+  float distance = 0.0f;
+
+  while (fabs(speed) > 0.0001) {
+    speed = next_speed(speed, 0.0f);
+    distance += speed * TIME_STEP;
+  }
+  return distance;
 }
 
 // Distance entre deux tracks
@@ -41,18 +55,24 @@ float distance_trains(Train train_a, Train train_b, Track *track_list_a, int tra
   int current_track_id = train_a.last_track;
   float distance = 0.0;
 
-  for (int i = 0; i < track_len_a; i++) {
-    current_track_id = (current_track_id + i) % track_len_a;
-    Track current_track = track_list_a[current_track_id];
-    Track next_track = track_list_a[(current_track_id + 1) % track_len_a];
+  if (!(in_track(track_list_a, track_len_a, track_b))) {
+    return -1.0;
+  }
 
-    if (same_track(current_track, track_b)) {
+  int track_b_index = track_index(track_list_a, track_len_a, track_b); 
+
+  for (int i = 0; i < track_len_a; i++) {
+    int index = (current_track_id + i) % track_len_a;
+    Track current_track = track_list_a[index];
+
+    if (index == track_b_index) {
       float dx = (float)(train_a.x - train_b.x);
       float dy = (float)(train_a.y - train_b.y);
       return distance + sqrtf(dx * dx + dy * dy);
-    } else if (i == 0) {
-      distance = distance_to_track(train_a, next_track);
-    } else {
+    }
+
+    if (i < track_len_a - 1) {
+      Track next_track = track_list_a[(index + 1) % track_len_a];
       distance += distance_tracks(current_track, next_track);
     }
   }
@@ -201,6 +221,29 @@ Track* critical_sections(Track **tracks_list, int *tracks_len, int tracks_nb, in
   return shrinked_critical;
 }
 
+
+Track* critical_sections_man(int *size_out) {
+    Track *critical = malloc(sizeof(Track) * 12);
+    if (!critical) {
+        *size_out = -1;
+        return NULL;
+    }
+  
+    for (int i = 0; i < 9; i++) {
+        Track critical_section = {6 + i, 12, 0, true, -1};
+        critical[i] = critical_section;
+    }
+    
+    Track critical_section_10 = {15, 11, 0, true, -1};
+    critical[10] = critical_section_10;
+    
+    Track critical_section_11 = {15, 10, 0, true, -1};
+    critical[11] = critical_section_11;
+
+    *size_out = 12;
+    return critical;
+}
+
 // ???
 int nb_next_critical(Track *track_list, int track_len, int track_id) {
   int counter = 0;
@@ -234,7 +277,7 @@ float new_speed(Track **tracks_list, int *tracks_len, Train **trains, int trains
 
   int t = train_on_track(tracks_list, trains, trains_nb, next_track);
   if (t != -1) {
-    printf("\tTrain ahead of train %d, slowing down\n", train_id);
+    DEBUG_PRINT("\tTrain ahead of train %d, slowing down\n", train_id);
     Track track_b = tracks_list[trains[t]->track_list][trains[t]->last_track];
     float d = distance_trains(*train, *trains[t], track_list, track_len, track_b);
 
@@ -254,17 +297,23 @@ float new_speed_v2(Track **tracks_list, int *tracks_len, Train **trains, int tra
   Train* train = trains[train_id];
   Track* track_list = tracks_list[train->track_list];
   int track_len = tracks_len[train->track_list];
+  int last_track = train->last_track;
 
-  Track current_track = track_list[train->last_track];
-  Track next_track = track_list[(train->last_track + 1) % track_len];
-  Track nnext_track = track_list[(train->last_track + 2) % track_len];
+  // Il faudra utiliser ça plutôt que l'approche avec les sections
+  float stop_distance = stopping_distance(MAX_SPEED);
+  // float *next_coord = simulate_movement(train, track_list, track_len, stopping_distance(MAX_SPEED));
+  // float *nnext_coord = simulate_movement(train, track_list, track_len, 2*stopping_distance(MAX_SPEED)); 
 
-  float *next_coord = simulate_movement(train, track_list, track_len, 0.1);
-  float *nnext_coord = simulate_movement(train, track_list, track_len, 0.2); 
+  Track current_track = track_list[last_track];
+  Track next_track = track_list[(last_track + 1) % track_len];
+  Track nnext_track = track_list[(last_track + 2) % track_len];
 
   // Initialisaiton de la vitesse max en fonction de si l'on est dans un virage
   float u_max = MAX_SPEED;
   if ((current_track.x != next_track.x) && (current_track.y != next_track.y)) {
+    u_max = MAX_SPEED_TURN;
+  }
+  if ((next_track.x != nnext_track.x) && (next_track.y != nnext_track.y)) {
     u_max = MAX_SPEED_TURN;
   }
   
@@ -272,50 +321,75 @@ float new_speed_v2(Track **tracks_list, int *tracks_len, Train **trains, int tra
   float u_speed = 0.0;
 
   // Si l'on va rentrer dans une section critique
-  if (in_track(critical, critical_len, next_track)) {
-    int crit_index = track_index(critical, critical_len, next_track);
+  if (in_track(critical, critical_len, nnext_track)) {
+    int crit_index = track_index(critical, critical_len, nnext_track);
 
     // Réservation de la prochaine section critique
     if (critical[crit_index].available) {
       critical[crit_index].available = false;
       critical[crit_index].r_id = train_id;
-      for (int i = 1 + train->track_list; in_track(critical, critical_len, track_list[i % track_len]); i++) {
+      DEBUG_PRINT("Train %d locking critical section %d %d\n", train_id, critical[crit_index].x, critical[crit_index].y);
+      for (int i = 3 + last_track; in_track(critical, critical_len, track_list[i % track_len]); i++) {
         int crit_index = track_index(critical, critical_len, track_list[i % track_len]);
         if (critical[crit_index].available) {
           critical[crit_index].available = false;
           critical[crit_index].r_id = train_id;
+          DEBUG_PRINT("R-Train %d locking critical section %d %d\n", train_id, critical[crit_index].x, critical[crit_index].y);
         } else {
-          printf("This shouldn't happen...");
+          DEBUG_PRINT("\tLock: This shouldn't happen...\n");
         }
       }
+      //u_speed = u_max;
       return u_max;
     }
     // Si le train a réservé la section
     else if (critical[crit_index].r_id == train_id) {
-      return u_max;
+      u_speed = u_max;
     }
     // Sinon on doit laisser passer
     else {
-      return 0;
+      //u_speed = 0.0;
+      return 0.0;
     }
   }
   
   // Gestion de la distance inter trains
-  for (int i = 0; i < trains_nb; i++) {
-    float d = distance_trains(*train, *trains[i], track_list, track_len,
-                              tracks_list[trains[i]->track_list][trains[i]->last_track]);
-    if (d > 0) {
-      return 0.0;
+  /* for (int i = 0; i < trains_nb; i++) {
+    if (i != train_id) {
+      float d = distance_trains(*train, *trains[i], track_list, track_len,
+                                tracks_list[trains[i]->track_list][trains[i]->last_track]);
+      if ((d > 0) && (d < 1)) {
+        printf("Train %d to close to train %d, slowing down\n", train_id, i);
+        return 0.0;
+      }
     }
+  } */
+  int t = train_on_track(tracks_list, trains, trains_nb, next_track);
+  if (t != -1) {
+    DEBUG_PRINT("\tTrain ahead of train %d, slowing down\n", train_id);
+    Track track_b = tracks_list[trains[t]->track_list][trains[t]->last_track];
+    float d = distance_trains(*train, *trains[t], track_list, track_len, track_b);
+
+    if (d < 0) {
+      d = distance_to_track(*train, next_track);
+    }
+
+    float d_max = distance_tracks(track_list[last_track], track_list[(last_track+1)%track_len]);
+    return MAX_SPEED * fmax(0.0, (d / (4 * d_max) - 0.2));
   }
 
   // Si l'on sort d'une section critique
-  return 0.0;
+  for (int i = last_track - 1; in_track(critical, critical_len, track_list[i % track_len]); i--) {
+    int crit_index = track_index(critical, critical_len, track_list[i % track_len]);
+    if (critical[crit_index].r_id == train_id) {
+      critical[crit_index].available = true;
+      critical[crit_index].r_id = -1;
+      DEBUG_PRINT("R-Train %d unlocking critical section %d %d\n", train_id, critical[crit_index].x, critical[crit_index].y);
+    } else {
+      //printf("Unlock: This shouldn't happen...\n");
+    }
+  }
+  return u_max;
+  //return u_speed;
 }
 
-// TODO(jdumezy) separate critical sections to consider them as "one big track"
-// then, use a mutex ? it does not really make sense, although it does, because we do not have to treat trains as treads
-// toggle the availability of all tracks of the critical section in the critical list
-// trains have to look ahead --> 2 times the times they need to decellerate
-// sigmoid for u_speed
-// go with mobile sections otherwise

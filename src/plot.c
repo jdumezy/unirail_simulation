@@ -53,3 +53,19 @@ void draw_train(SDL_Renderer *renderer, Color color, Train *train, Track *track_
   SDL_RenderFillRect(renderer, &train_rect);
 }
 
+void draw_critical(SDL_Renderer *renderer, Color color, Track *critical, int critical_len) {
+  SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
+  for (int i = 0; i < critical_len; i++) {
+    float x = scale_xf(critical[i].x);
+    float y = scale_yf(critical[i].y);
+
+    SDL_Rect rect = {
+      .x = x-(TRAIN_SIZE)/2,
+      .y = y-(TRAIN_SIZE)/2,
+      .w = 2*(TRAIN_SIZE)/2,
+      .h = 2*(TRAIN_SIZE)/2
+    };
+
+    SDL_RenderFillRect(renderer, &rect);
+  }
+}
