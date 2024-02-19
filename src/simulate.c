@@ -54,13 +54,18 @@ int main(int argc, char* argv[]) {
   int tracks_len[] = {track_len_1, track_len_2, track_len_3};
 
   int critical_len = 0;
-  //Track *critical = critical_sections(tracks_list, tracks_len, 3, &critical_len);
   Track *critical = critical_sections_man(&critical_len);
+
+  int shared_len_temp = 0;
+  Track *shared_temp = critical_sections(tracks_list, tracks_len, 3, &shared_len_temp);
+  int shared_len = 0;
+  Track *shared = diff_track(shared_temp, shared_len_temp, critical, critical_len, &shared_len);
 
   Color white = { 255, 255, 255 };
   Color blue = { 100, 100, 255 };
   Color green = { 100, 255, 100 };
   Color red = { 255, 0, 0};
+  Color violet = { 255, 100, 255};
 
   Train train_1 = init_train(0, track_list_1, 0, 0);
   Train train_2 = init_train(1, track_list_2, 1, 10);
@@ -76,9 +81,12 @@ int main(int argc, char* argv[]) {
 
   for (int laps = 0; laps < steps; laps++) {
     // Logique
-    train_1.u_speed = new_speed_v2(tracks_list, tracks_len, trains, 3, 0, critical, critical_len);
-    train_2.u_speed = new_speed_v2(tracks_list, tracks_len, trains, 3, 1, critical, critical_len);
-    train_3.u_speed = new_speed_v2(tracks_list, tracks_len, trains, 3, 2, critical, critical_len);
+    train_1.u_speed = new_speed_v2(tracks_list, tracks_len, trains, 3, 0,
+                                   critical, critical_len, shared, shared_len);
+    train_2.u_speed = new_speed_v2(tracks_list, tracks_len, trains, 3, 1,
+                                   critical, critical_len, shared, shared_len);
+    train_3.u_speed = new_speed_v2(tracks_list, tracks_len, trains, 3, 2,
+                                   critical, critical_len, shared, shared_len);
 
     calculate_next_position(&train_1, track_list_1, track_len_1);
     calculate_next_position(&train_2, track_list_2, track_len_2);
@@ -107,6 +115,7 @@ int main(int argc, char* argv[]) {
     draw_tracks(renderer, green, track_list_3, track_len_3);
 
     draw_critical(renderer, red, critical, critical_len);
+    draw_shared(renderer, violet, shared, shared_len);
 
     draw_train(renderer, white, &train_1, track_list_1, track_len_1);
     draw_train(renderer, blue, &train_2, track_list_2, track_len_2);

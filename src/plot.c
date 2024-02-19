@@ -60,6 +60,23 @@ void draw_critical(SDL_Renderer *renderer, Color color, Track *critical, int cri
     float y = scale_yf(critical[i].y);
 
     SDL_Rect rect = {
+      .x = x-(TRAIN_SIZE)/1.5,
+      .y = y-(TRAIN_SIZE)/1.5,
+      .w = 2*(TRAIN_SIZE)/1.5,
+      .h = 2*(TRAIN_SIZE)/1.5
+    };
+
+    SDL_RenderFillRect(renderer, &rect);
+  }
+}
+
+void draw_shared(SDL_Renderer *renderer, Color color, Track *shared, int shared_len) {
+  SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
+  for (int i = 0; i < shared_len; i++) {
+    float x = scale_xf(shared[i].x);
+    float y = scale_yf(shared[i].y);
+
+    SDL_Rect rect = {
       .x = x-(TRAIN_SIZE)/2,
       .y = y-(TRAIN_SIZE)/2,
       .w = 2*(TRAIN_SIZE)/2,
@@ -69,3 +86,4 @@ void draw_critical(SDL_Renderer *renderer, Color color, Track *critical, int cri
     SDL_RenderFillRect(renderer, &rect);
   }
 }
+
