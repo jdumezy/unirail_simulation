@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+
 #include "utils.h"
 #include "logic.h"
 #include "file.h"
@@ -73,24 +74,16 @@ int main(int argc, char* argv[]) {
   int steps = duration * TIME_STEP * 1000;
 
   for (int laps = 0; laps < steps; laps++) {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
-    
+    // Logique
     train_1.u_speed = new_speed(tracks_list, tracks_len, trains, 3, 0, critical, critical_len);
     train_2.u_speed = new_speed(tracks_list, tracks_len, trains, 3, 1, critical, critical_len);
     train_3.u_speed = new_speed(tracks_list, tracks_len, trains, 3, 2, critical, critical_len);
 
-    draw_tracks(renderer, white, track_list_1, track_len_1);
-    draw_tracks(renderer, blue, track_list_2, track_len_2);
-    draw_tracks(renderer, green, track_list_3, track_len_3);
-    // draw_tracks(renderer, red, critical, critical_len);
-    draw_train(renderer, white, &train_1, track_list_1, track_len_1);
-    draw_train(renderer, blue, &train_2, track_list_2, track_len_2);
-    draw_train(renderer, green, &train_3, track_list_3, track_len_3);
-    
-    SDL_RenderPresent(renderer);
+    calculate_next_position(&train_1, track_list_1, track_len_1);
+    calculate_next_position(&train_2, track_list_2, track_len_2);
+    calculate_next_position(&train_3, track_list_3, track_len_3);
 
-    // Collision detection
+    // Détection collisions
     if (detect_collision(&train_1, &train_2, radius)) {
       printf("Collision between train 1 and train 2!\n");
       //break;
@@ -104,6 +97,20 @@ int main(int argc, char* argv[]) {
       //break;
     }
 
+    // Affichage
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+
+    draw_tracks(renderer, white, track_list_1, track_len_1);
+    draw_tracks(renderer, blue, track_list_2, track_len_2);
+    draw_tracks(renderer, green, track_list_3, track_len_3);
+
+    draw_train(renderer, white, &train_1, track_list_1, track_len_1);
+    draw_train(renderer, blue, &train_2, track_list_2, track_len_2);
+    draw_train(renderer, green, &train_3, track_list_3, track_len_3);
+    
+    SDL_RenderPresent(renderer);
+
     SDL_Delay(TIME_STEP);
   }
 
@@ -116,6 +123,7 @@ int main(int argc, char* argv[]) {
   free(track_list_1);
   free(track_list_2);
   free(track_list_3);
+  free(critical);
    
   return 0;
 }

@@ -7,6 +7,7 @@
 #define RESPONSE_TIME 200.0
 #define TIME_STEP 1.0
 #define MAX_SPEED 0.01
+#define MAX_SPEED_TURN 0.008
 
 typedef struct {
   int r;
@@ -19,6 +20,7 @@ typedef struct {
   int y;
   int section;
   bool available;
+  int r_id;
 } Track;
 
 typedef struct {

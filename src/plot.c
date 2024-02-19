@@ -28,21 +28,18 @@ void draw_tracks(SDL_Renderer *renderer, Color color, Track *track_list, int tra
   for (int i = 0; i < track_len; i++) {
     Track current_track = track_list[i];
     Track next_track = track_list[(i + 1) % track_len];
+
+    int x_current = scale_x(current_track.x);
+    int y_current = scale_y(current_track.y);
+    int x_next = scale_x(next_track.x);
+    int y_next = scale_y(next_track.y);
     
-    if (is_close(current_track, next_track)) {
-      int x_current = scale_x(current_track.x);
-      int y_current = scale_y(current_track.y);
-      int x_next = scale_x(next_track.x);
-      int y_next = scale_y(next_track.y);
-      
-      SDL_RenderDrawLine(renderer, x_current, y_current, x_next, y_next);
-    }
+    SDL_RenderDrawLine(renderer, x_current, y_current, x_next, y_next);
   }
 }
 
 void draw_train(SDL_Renderer *renderer, Color color, Train *train, Track *track_list, int track_len) {
   SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
-  calculate_next_position(train, track_list, track_len);
   float x = scale_xf(train->x);
   float y = scale_yf(train->y);
 

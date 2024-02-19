@@ -38,7 +38,7 @@ Track* load_track(const char *filename) {
 
   while (fgets(buffer, sizeof(buffer), file) != NULL) {
     sscanf(buffer, "%d,%d", &x, &y);
-    Track track = { x, y, 0, true };
+    Track track = { x, y, 0, true, -1 };
     track_list[i] = track;
     i++;
     }

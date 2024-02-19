@@ -23,3 +23,4 @@ int track_index(Track *track_list, int track_len, Track track) {
 bool same_track(Track track_a, Track track_b) {
   return ((track_a.x == track_b.x) && (track_a.y == track_b.y));
 }
+
