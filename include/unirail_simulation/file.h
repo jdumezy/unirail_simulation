@@ -3,7 +3,7 @@
 #ifndef UNIRAIL_SIMULATION_INCLUDE_FILE_H
 #define UNIRAIL_SIMULATION_INCLUDE_FILE_H
 
-#include "logic.h"
+#include "utils.h"
 
 int line_number(const char *filename);
 Track* load_track(const char *filename);

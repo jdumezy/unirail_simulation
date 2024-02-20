@@ -18,6 +18,14 @@ int main(int argc, char* argv[]) {
   if (argc > 1) {
     duration = atoi(argv[1]);
   }
+  
+  // For fast simulations
+  bool unlimited = false;
+  if (argc > 2) {
+    if (strcmp(argv[2], "-u") == 0) {
+      unlimited = true;
+    }
+  }
 
   float g_windowWidth = 950.; // Initial width
   float g_windowHeight = 800.; // Initial height
@@ -125,21 +133,23 @@ int main(int argc, char* argv[]) {
     }
 
     // Affichage
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
+    if (!(unlimited)) {
+      SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+      SDL_RenderClear(renderer);
 
-    draw_tracks(renderer, train_1_color, track_list_1, track_len_1, 0.0, g_windowWidth, g_windowHeight);
-    draw_tracks(renderer, train_2_color, track_list_2, track_len_2, 0.0, g_windowWidth, g_windowHeight);
-    draw_tracks(renderer, train_3_color, track_list_3, track_len_3, 0.0, g_windowWidth, g_windowHeight);
+      draw_tracks(renderer, train_1_color, track_list_1, track_len_1, 0.0, g_windowWidth, g_windowHeight);
+      draw_tracks(renderer, train_2_color, track_list_2, track_len_2, 0.0, g_windowWidth, g_windowHeight);
+      draw_tracks(renderer, train_3_color, track_list_3, track_len_3, 0.0, g_windowWidth, g_windowHeight);
+      
+      draw_critical(renderer, critical_color, critical, critical_len, g_windowWidth, g_windowHeight);
+      draw_shared(renderer, shared_color, shared, shared_len, g_windowWidth, g_windowHeight);
 
-    draw_critical(renderer, critical_color, critical, critical_len, g_windowWidth, g_windowHeight);
-    draw_shared(renderer, shared_color, shared, shared_len, g_windowWidth, g_windowHeight);
-
-    draw_train(renderer, train_1_color, &train_1, track_list_1, track_len_1, g_windowWidth, g_windowHeight);
-    draw_train(renderer, train_2_color, &train_2, track_list_2, track_len_2, g_windowWidth, g_windowHeight);
-    draw_train(renderer, train_3_color, &train_3, track_list_3, track_len_3, g_windowWidth, g_windowHeight);
-    
-    SDL_RenderPresent(renderer);
+      draw_train(renderer, train_1_color, &train_1, track_list_1, track_len_1, g_windowWidth, g_windowHeight);
+      draw_train(renderer, train_2_color, &train_2, track_list_2, track_len_2, g_windowWidth, g_windowHeight);
+      draw_train(renderer, train_3_color, &train_3, track_list_3, track_len_3, g_windowWidth, g_windowHeight);
+      
+      SDL_RenderPresent(renderer);
+    }
 
     // Check event
     while (SDL_PollEvent(&event)) {
@@ -154,8 +164,12 @@ int main(int argc, char* argv[]) {
           }
       }
     }
-
-    SDL_Delay(TIME_STEP);
+    
+    if (!(unlimited)) {
+      SDL_Delay(TIME_STEP);
+    } else if (laps % 10000 == 0) {
+      printf("Iteration: %d\n", laps);
+    }
 
     laps++;
   }
