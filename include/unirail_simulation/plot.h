@@ -16,10 +16,14 @@
 #define MARGIN 50.
 #define TRAIN_SIZE 10.
 
-void draw_tracks(SDL_Renderer *renderer, Color color, Track *track_list, int track_len);
-void draw_train(SDL_Renderer *renderer, Color color, Train *train, Track *track_list, int track_len);
-void draw_critical(SDL_Renderer *renderer, Color color, Track *critical, int critical_len);
-void draw_shared(SDL_Renderer *renderer, Color color, Track *shared, int shared_len);
+void draw_tracks(SDL_Renderer *renderer, Color color, Track *track_list,
+                 int track_len, float thickness, float w, float h);
+void draw_train(SDL_Renderer *renderer, Color color, Train *train,
+                Track *track_list, int track_len, float w, float h);
+void draw_critical(SDL_Renderer *renderer, Color color,
+                   Track *critical, int critical_len, float w, float h);
+void draw_shared(SDL_Renderer *renderer, Color color, Track *shared,
+                 int shared_len, float w, float h);
 
 #endif /* UNIRAIL_SIMULATION_INCLUDE_PLOT_H */
 

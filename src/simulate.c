@@ -19,6 +19,9 @@ int main(int argc, char* argv[]) {
     duration = atoi(argv[1]);
   }
 
+  float g_windowWidth = 950.; // Initial width
+  float g_windowHeight = 800.; // Initial height
+
   // Création de la fenêtre
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
@@ -28,8 +31,8 @@ int main(int argc, char* argv[]) {
   SDL_Window* window = SDL_CreateWindow(
     "Unirail Simlulation jdumezy",
     SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-    WIDTH, HEIGHT,
-    SDL_WINDOW_SHOWN
+    g_windowWidth, g_windowHeight,
+    SDL_WINDOW_RESIZABLE
   );
 
   if (window == NULL) {
@@ -69,12 +72,15 @@ int main(int argc, char* argv[]) {
   Track *shared = diff_track(shared_temp, shared_len_temp, critical,
                              critical_len, &shared_len);
   free(shared_temp);
+  
+  // Colors for Trains
+  Color train_1_color = {255, 165, 0};     // Orange
+  Color train_2_color = {85, 255, 85};  // Light Green
+  Color train_3_color = {85, 85, 255};  // Light Blue
 
-  Color white = { 255, 255, 255 };
-  Color blue = { 100, 100, 255 };
-  Color green = { 100, 255, 100 };
-  Color red = { 255, 0, 0};
-  Color violet = { 255, 100, 255};
+  // Colors for Sections
+  Color critical_color = {255, 85, 85};  // Light Red
+  Color shared_color = {255, 255, 85};  // Yellow
 
   Train train_1 = init_train(0, track_list_1, 0, 0);
   Train train_2 = init_train(1, track_list_2, 1, 10);
@@ -122,16 +128,16 @@ int main(int argc, char* argv[]) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
-    draw_tracks(renderer, white, track_list_1, track_len_1);
-    draw_tracks(renderer, blue, track_list_2, track_len_2);
-    draw_tracks(renderer, green, track_list_3, track_len_3);
+    draw_tracks(renderer, train_1_color, track_list_1, track_len_1, 0.0, g_windowWidth, g_windowHeight);
+    draw_tracks(renderer, train_2_color, track_list_2, track_len_2, 0.0, g_windowWidth, g_windowHeight);
+    draw_tracks(renderer, train_3_color, track_list_3, track_len_3, 0.0, g_windowWidth, g_windowHeight);
 
-    draw_critical(renderer, red, critical, critical_len);
-    draw_shared(renderer, violet, shared, shared_len);
+    draw_critical(renderer, critical_color, critical, critical_len, g_windowWidth, g_windowHeight);
+    draw_shared(renderer, shared_color, shared, shared_len, g_windowWidth, g_windowHeight);
 
-    draw_train(renderer, white, &train_1, track_list_1, track_len_1);
-    draw_train(renderer, blue, &train_2, track_list_2, track_len_2);
-    draw_train(renderer, green, &train_3, track_list_3, track_len_3);
+    draw_train(renderer, train_1_color, &train_1, track_list_1, track_len_1, g_windowWidth, g_windowHeight);
+    draw_train(renderer, train_2_color, &train_2, track_list_2, track_len_2, g_windowWidth, g_windowHeight);
+    draw_train(renderer, train_3_color, &train_3, track_list_3, track_len_3, g_windowWidth, g_windowHeight);
     
     SDL_RenderPresent(renderer);
 
@@ -141,6 +147,11 @@ int main(int argc, char* argv[]) {
         case SDL_QUIT:
           isRunning = 0;
           break;
+        case SDL_WINDOWEVENT:
+          if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
+            g_windowWidth = event.window.data1;
+            g_windowHeight = event.window.data2;
+          }
       }
     }
 
