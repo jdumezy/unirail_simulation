@@ -1,7 +1,10 @@
-#ifndef LOGIC_H
-#define LOGIC_H
+// Copyright 2024 Jules Dumezy
+
+#ifndef UNIRAIL_SIMULATION_INCLUDE_LOGIC_H
+#define UNIRAIL_SIMULATION_INCLUDE_LOGIC_H
 
 #include "utils.h"
+
 #include <stdbool.h>
 
 Train init_train(int id, Track *track_list, int track_len, int start);
@@ -15,5 +18,5 @@ float new_speed(Track **tracks_list, int *tracks_len, Train **trains, int trains
                    int train_id, Track *critical, int critical_len,
                    Track *shared, int shared_len);
 
-#endif /* LOGIC_H */
+#endif /* UNIRAIL_SIMULATION_INCLUDE_LOGIC_H */
 

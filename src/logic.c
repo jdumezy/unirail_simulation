@@ -1,3 +1,5 @@
+// Copyright 2024 Jules Dumezy
+
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
@@ -239,6 +241,7 @@ Track* critical_sections_man(int *size_out) {
     return critical;
 }
 
+// Détermine le Track le plus proches de deux coordonnées
 int nearest_track(Track *track_list, int track_len, float x, float y) {
   int nearestIndex = -1;
   float nearestDistance = FLT_MAX;

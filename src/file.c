@@ -1,8 +1,12 @@
+// Copyright 2024 Jules Dumezy
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "utils.h"
 
+// Counts the number of lines in a file
 int line_number(const char *filename) {
   FILE *file = fopen(filename, "r");
   if (file == NULL) {
@@ -21,6 +25,7 @@ int line_number(const char *filename) {
   return nb_lines;
 }
 
+// Loads a file containing (x,y) coordinates in a Track*
 Track* load_track(const char *filename) {
   FILE *file = fopen(filename, "r");
   if (file == NULL) {
@@ -38,7 +43,7 @@ Track* load_track(const char *filename) {
 
   while (fgets(buffer, sizeof(buffer), file) != NULL) {
     sscanf(buffer, "%d,%d", &x, &y);
-    Track track = { x, y, 0, true, -1 };
+    Track track = { x, y, 0, true };
     track_list[i] = track;
     i++;
     }

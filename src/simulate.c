@@ -1,3 +1,5 @@
+// Copyright 2024 Jules Dumezy
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_render.h>
 #include <stdio.h>
@@ -10,13 +12,14 @@
 #include "file.h"
 #include "plot.h"
 
-
 int main(int argc, char* argv[]) {
+  // Récupération de la durée de simulation
   int duration = 10;
   if (argc > 1) {
     duration = atoi(argv[1]);
   }
 
+  // Création de la fenêtre
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
     return -1;
@@ -33,14 +36,16 @@ int main(int argc, char* argv[]) {
     printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
         SDL_Quit();
         return -1;
-    }
-    
+  }
+
+  // Initialisation des la simulation    
   SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   SDL_RenderClear(renderer);
 
   SDL_Event event;
 
+  // Chemins à adapter
   const char *filename_1 = "/home/jd/Documents/dev/unirail_simulation/data/track_1.csv";
   const char *filename_2 = "/home/jd/Documents/dev/unirail_simulation/data/track_2.csv"; 
   const char *filename_3 = "/home/jd/Documents/dev/unirail_simulation/data/track_3.csv";
@@ -85,6 +90,7 @@ int main(int argc, char* argv[]) {
   int isRunning = 1;
   int laps = 0;
 
+  // Boucle itérative principale
   while (isRunning && laps < steps){
     // Logique
     train_1.u_speed = new_speed(tracks_list, tracks_len, trains, 3, 0,
@@ -143,11 +149,10 @@ int main(int argc, char* argv[]) {
     laps++;
   }
   
-  if (isRunning == 0) {
-    return 0;
+  if (isRunning == 1) {
+    // Délai avant fermeture
+    SDL_Delay(5000);
   }
-
-  SDL_Delay(5000);
   
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);

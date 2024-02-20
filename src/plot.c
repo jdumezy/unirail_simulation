@@ -1,27 +1,34 @@
+// Copyright 2024 Jules Dumezy
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_render.h>
+
 #include "utils.h"
-#include "logic.h"
 #include "plot.h"
 
+// Facteur d'échelle sur x
 float scale_x(int x) {
     float xf = (float)x;
     return MARGIN + ((xf - 1.0) / (MAX_X - 1.0)) * (WIDTH - 2 * MARGIN);
 }
 
+// Facteur d'échelle sur y
 float scale_y(int y) {
     float yf = (float)y;
     return MARGIN + ((yf - 1.0) / (MAX_Y - 1.0)) * (HEIGHT - 2 * MARGIN);
 }
 
+// Facteur d'échelle sur x (float)
 float scale_xf(float xf) {
     return MARGIN + ((xf - 1.0) / (MAX_X - 1.0)) * (WIDTH - 2 * MARGIN);
 }
 
+// Facteur d'échelle sur y (float)
 float scale_yf(float yf) {
     return MARGIN + ((yf - 1.0) / (MAX_Y - 1.0)) * (HEIGHT - 2 * MARGIN);
 }
 
+// Affichages des circuits
 void draw_tracks(SDL_Renderer *renderer, Color color, Track *track_list, int track_len) {
   SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
 
@@ -38,6 +45,7 @@ void draw_tracks(SDL_Renderer *renderer, Color color, Track *track_list, int tra
   }
 }
 
+// Affichage des trains
 void draw_train(SDL_Renderer *renderer, Color color, Train *train, Track *track_list, int track_len) {
   SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
   float x = scale_xf(train->x);
@@ -53,6 +61,7 @@ void draw_train(SDL_Renderer *renderer, Color color, Train *train, Track *track_
   SDL_RenderFillRect(renderer, &train_rect);
 }
 
+// Affichage des sections critiques
 void draw_critical(SDL_Renderer *renderer, Color color, Track *critical, int critical_len) {
   SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
   for (int i = 0; i < critical_len; i++) {
@@ -75,6 +84,7 @@ void draw_critical(SDL_Renderer *renderer, Color color, Track *critical, int cri
   }
 }
 
+// Affichage des sections partagées
 void draw_shared(SDL_Renderer *renderer, Color color, Track *shared, int shared_len) {
   for (int i = 0; i < shared_len; i++) {
     if (shared[i].available) {

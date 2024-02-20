@@ -1,10 +1,12 @@
-#ifndef FILE_H
-#define FILE_H
+// Copyright 2024 Jules Dumezy
+
+#ifndef UNIRAIL_SIMULATION_INCLUDE_FILE_H
+#define UNIRAIL_SIMULATION_INCLUDE_FILE_H
 
 #include "logic.h"
 
 int line_number(const char *filename);
 Track* load_track(const char *filename);
 
-#endif /* FILE_H */
+#endif /* UNIRAIL_SIMULATION_INCLUDE_FILE_H */
 

@@ -3,7 +3,7 @@ project(unirail_simulation VERSION 0.1.0)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+if(CMAKE_BUILD_TYPE STREQUAL "DEBUG")
     add_compile_definitions(DEBUG)
 endif()
 

@@ -1,3 +1,5 @@
+// Copyright 2024 Jules Dumezy
+
 #include <stdlib.h>
 
 #include "utils.h"

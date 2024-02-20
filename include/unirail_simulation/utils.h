@@ -1,5 +1,7 @@
-#ifndef UTILS_H
-#define UTILS_H
+// Copyright 2024 Jules Dumezy
+
+#ifndef UNIRAIL_SIMULATION_INCLUDE_UTILS_H
+#define UNIRAIL_SIMULATION_INCLUDE_UTILS_H
 
 #include <stdbool.h>
 
@@ -48,5 +50,5 @@ Track* diff_track(Track *track_list_a, int track_len_a,
                   int *diff_size);
 int idx(int index, int max);
 
-#endif /* UTILS_H */
+#endif /* UNIRAIL_SIMULATION_INCLUDE_UTILS_H */
 

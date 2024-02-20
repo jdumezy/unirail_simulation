@@ -1,8 +1,11 @@
-#ifndef PLOT_H
-#define PLOT_H
+// Copyright 2024 Jules Dumezy
+
+#ifndef UNIRAIL_SIMULATION_INCLUDE_PLOT_H
+#define UNIRAIL_SIMULATION_INCLUDE_PLOT_H
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_render.h>
+
 #include "utils.h"
 
 // recommended 800 x 950
@@ -18,5 +21,5 @@ void draw_train(SDL_Renderer *renderer, Color color, Train *train, Track *track_
 void draw_critical(SDL_Renderer *renderer, Color color, Track *critical, int critical_len);
 void draw_shared(SDL_Renderer *renderer, Color color, Track *shared, int shared_len);
 
-#endif /* PLOT_H */
+#endif /* UNIRAIL_SIMULATION_INCLUDE_PLOT_H */
 
