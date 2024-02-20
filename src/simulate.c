@@ -97,7 +97,7 @@ int main(int argc, char* argv[]) {
   int laps = 0;
 
   // Boucle itérative principale
-  while (isRunning && laps < steps){
+  while (isRunning && (laps < steps || duration < 0)){
     // Logique
     train_1.u_speed = new_speed(tracks_list, tracks_len, trains, 3, 0,
                                    critical, critical_len, shared, shared_len);
@@ -113,15 +113,15 @@ int main(int argc, char* argv[]) {
     // Détection collisions
     if (detect_collision(&train_1, &train_2, radius)) {
       printf("Collision between train 1 and train 2!\n");
-      //break;
+      break;
     }
     if (detect_collision(&train_3, &train_2, radius)) {
       printf("Collision between train 2 and train 3!\n");
-      //break;
+      break;
     }
     if (detect_collision(&train_1, &train_3, radius)) {
       printf("Collision between train 1 and train 3!\n");
-      //break;
+      break;
     }
 
     // Affichage
